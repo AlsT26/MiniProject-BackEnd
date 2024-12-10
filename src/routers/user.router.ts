@@ -12,7 +12,6 @@ export class UserRouter {
     this.router = Router();
     this.initializeRoutes();
   }
-
   private initializeRoutes() {
     this.router.get("/", this.userController.getUsers);
     this.router.post("/", this.userController.AddUser);

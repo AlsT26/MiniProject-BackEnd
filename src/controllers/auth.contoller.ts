@@ -52,19 +52,9 @@ export class AuthController {
       if (user.isVerify) throw { message: "Account not Verified !" };
 
       const isValidPass = await compare(password, user.password);
-    //   if (!isValidPass) {
-    //     await prisma.user.update({
-    //       data: { loginAttempt: { increment: 1 } },
-    //       where: { id: user.id },
-    //     });
-    //     if (user.loginAttempt == 2) {
-    //       await prisma.user.update({
-    //         data: { isSuspend: true },
-    //         where: { id: user.id },
-    //       });
-    //     }
-    //     throw { message: "Incorrect Password !" };
-    //   }
+      if (!isValidPass) {
+        throw { message: "Incorrect Password !" };
+      }
 
     //   await prisma.user.update({
     //     data: { loginAttempt: 0 },
@@ -100,6 +90,14 @@ export class AuthController {
         where:{id:verifiedUser.id}
       })
       res.status(200).send({message:"verify success"})
+    }catch(error){
+      res.status(400).send({message:error})
+
+    }
+  }
+  async test(req:Request,res:Response){
+    try{
+      res.status(200).send({message:"test success"})
     }catch(error){
       res.status(400).send({message:error})
 

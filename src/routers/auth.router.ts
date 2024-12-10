@@ -13,6 +13,7 @@ export class AuthRouter {
 
   private initializeRoutes() {
     this.router.post("/", this.authController.registerUser);
+    this.router.get("/", this.authController.test);
     this.router.post("/login", this.authController.loginUser);
 
     this.router.patch("/verify/:token", this.authController.verifyUser);

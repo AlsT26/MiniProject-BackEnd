@@ -19,8 +19,6 @@ app.get("/ticketbooth", (req: Request, res: Response) => {
 const userRouter = new UserRouter();
 app.use("/api/users", userRouter.getRouter());
 
-// app.use("/ticketbooth");
-
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });

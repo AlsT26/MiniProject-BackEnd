@@ -5,20 +5,20 @@ import { findUser } from "../services/user.service";
 import { sign, verify } from "jsonwebtoken";
 import { transporter } from "../services/mailer";
 import path from "path";
-import  fs  from "fs";
+import fs from "fs";
 import handlebars from "handlebars";
 import { findReferal } from "../services/referal.service";
 
 export class AuthController {
   async registerUser(req: Request, res: Response) {
     try {
-      const { password, confirmPassword, username, email,referal } = req.body;
+      const { password, confirmPassword, username, email, referal } = req.body;
 
       if (password != confirmPassword) throw { message: "Password not match!" };
 
       const user = await findUser(username, email);
       if (user) throw { message: "username or email has been used !" };
-      if(referal!=""){
+      if (referal != "") {
         const ref = await findReferal(referal);
         if (!ref) throw { message: "referal code not valid !" };
       }
@@ -30,36 +30,39 @@ export class AuthController {
         data: { username, email, password: hashPasword },
       });
 
-      const randomNumber = Math.floor(100 + Math.random() * 900); // 3 random digits
+      const randomNumber = Math.floor(100 + Math.random() * 900);
       const refCode = `${newUser.id}${randomNumber}`;
 
-      // Update user with ref_code
       await prisma.user.update({
-          where: { id: newUser.id },
-          data: { ref_code: refCode },
+        where: { id: newUser.id },
+        data: { ref_code: refCode },
       });
 
-      const payload = { id: newUser.id};
+      const payload = { id: newUser.id };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "10m" });
-      const link = `http://localhost:3000/verify/${token}`
-      
-      const templatePath = path.join(__dirname,"../templates","verify.hbs")
-      const templateSource = fs.readFileSync(templatePath,"utf-8")
-      const compiledTemplate = handlebars.compile(templateSource)
-      const html = compiledTemplate({username,link})
+      const link = `http://localhost:3000/verify/${token}`;
+
+      const templatePath = path.join(__dirname, "../templates", "verify.hbs");
+      const templateSource = fs.readFileSync(templatePath, "utf-8");
+      const compiledTemplate = handlebars.compile(templateSource);
+      const html = compiledTemplate({ username, link });
       await transporter.sendMail({
         from: "sandieswendies@gmail.com",
         to: email,
         subject: "Verify your account",
-        html
+        html,
       });
       const currentDate = new Date();
       const threeMonthLater = new Date(currentDate);
       threeMonthLater.setMonth(currentDate.getMonth() + 3);
 
-      if(referal!=""){
+      if (referal != "") {
         await prisma.user_Coupon.create({
-          data: { percentage:10,expiredAt: threeMonthLater, userId: newUser.id},
+          data: {
+            percentage: 10,
+            expiredAt: threeMonthLater,
+            userId: newUser.id,
+          },
         });
       }
       res.status(201).send({ message: "Register Successfully ✅" });
@@ -81,12 +84,12 @@ export class AuthController {
         throw { message: "Incorrect Password !" };
       }
 
-    //   await prisma.user.update({
-    //     data: { loginAttempt: 0 },
-    //     where: { id: user.id },
-    //   });
+      //   await prisma.user.update({
+      //     data: { loginAttempt: 0 },
+      //     where: { id: user.id },
+      //   });
 
-      const payload = { id: user.id};
+      const payload = { id: user.id };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "1d" });
 
       res
@@ -106,34 +109,24 @@ export class AuthController {
       res.status(400).send(err);
     }
   }
-  async verifyUser(req:Request,res:Response){
-    try{
-      const {token} =req.params
-      const verifiedUser:any = verify(token,process.env.JWT_KEY!)
+  async verifyUser(req: Request, res: Response) {
+    try {
+      const { token } = req.params;
+      const verifiedUser: any = verify(token, process.env.JWT_KEY!);
       await prisma.user.update({
-        data:{isVerify:true},
-        where:{id:verifiedUser.id}
-      })
-      res.status(200).send({message:"verify success"})
-    }catch(error){
-      res.status(400).send({message:error})
-
+        data: { isVerify: true },
+        where: { id: verifiedUser.id },
+      });
+      res.status(200).send({ message: "verify success" });
+    } catch (error) {
+      res.status(400).send({ message: error });
     }
   }
-  async test(req:Request,res:Response){
-    try{
-      res.status(200).send({message:"test success"})
-    }catch(error){
-      res.status(400).send({message:error})
-
-    }
-  }
-  async MakeCoupon(req:Request,res:Response){
-    try{
-      res.status(200).send({message:"coupon created success"})
-    }catch(error){
-      res.status(400).send({message:error})
+  async test(req: Request, res: Response) {
+    try {
+      res.status(200).send({ message: "test success" });
+    } catch (error) {
+      res.status(400).send({ message: error });
     }
   }
 }
-

@@ -31,6 +31,7 @@ export class UserRouter {
     );
     this.router.patch("/:id", this.userController.EditUser);
     this.router.delete("/:id", this.userController.DeleteUser);
+    this.router.post("/:id/:eventId/review", this.userController.addReview);
   }
   getRouter(): Router {
     return this.router;

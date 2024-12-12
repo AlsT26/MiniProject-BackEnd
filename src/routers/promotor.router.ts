@@ -8,9 +8,17 @@ export class PromotorRouter {
   constructor() {
     this.promotorController = new PromotorController();
     this.router = Router();
+    this.initializeRoutes();
   }
 
   private initializeRoutes() {
-    this.router.post("/promotor/create", this.promotorController.createPromotor);
+    this.router.get("/", this.promotorController.getPromotors);
+    this.router.post("/", this.promotorController.createPromotor);
+    this.router.get("/:id", this.promotorController.getPromotorById);
+    this.router.post("/:promotorId/event", this.promotorController.createEvent);
+  }
+
+  getRouter(): Router {
+    return this.router;
   }
 }

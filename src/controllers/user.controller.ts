@@ -1,4 +1,3 @@
-
 import { Request, Response } from "express";
 import prisma from "../prisma";
 import { Prisma } from "@prisma/client";
@@ -7,27 +6,24 @@ import { Prisma } from "@prisma/client";
 export class UserController {
   async getUsers(req: Request, res: Response) {
     try {
-      console.log(req.user)
+      console.log(req.user);
       const { search, page = 1 } = req.query;
-      const {user} = req.body
-      console.log("user",user)
+      const { user } = req.body;
+      console.log("user", user);
       const limit = 3;
       const filter: Prisma.UserWhereInput = {};
       if (search) {
-        filter.OR = [
-          { username: { contains: search as string, mode: "insensitive" } },
-          { email: { contains: search as string, mode: "insensitive" } },
-        ];
+        filter.OR = [{ username: { contains: search as string, mode: "insensitive" } }, { email: { contains: search as string, mode: "insensitive" } }];
       }
-      const countUser = await prisma.user.aggregate({_count:{_all:true}})
-      const total_page =Math.ceil(+countUser._count._all/+limit)
+      const countUser = await prisma.user.aggregate({ _count: { _all: true } });
+      const total_page = Math.ceil(+countUser._count._all / +limit);
       const users = await prisma.user.findMany({
         where: filter,
         orderBy: { id: "asc" },
-        take : limit,
-        skip:limit *(+page-1)
+        take: limit,
+        skip: limit * (+page - 1),
       });
-      res.status(200).send({ total_page,page,users });
+      res.status(200).send({ total_page, page, users });
     } catch (error) {
       console.log(error);
       res.status(400).send({ error });
@@ -78,7 +74,7 @@ export class UserController {
       res.status(400).send({ error });
     }
   }
-  async EditAvatar(req:Request,res:Response){
+  async EditAvatar(req: Request, res: Response) {
     // try{
     //   if(!req.file) throw {message:"file empty"}
     //   const link = `http://localhost:8000/api/public/avatar/${req.file.filename}`
@@ -91,7 +87,7 @@ export class UserController {
     //   res.status(400).send(error)
     // }
   }
-  async EditCloudinary(req:Request,res:Response){
+  async EditCloudinary(req: Request, res: Response) {
     // try{
     //   if(!req.file) throw {message:"file empty"}
     //   const {secure_url} = await cloudinaryUpload(req.file,"avatar")
@@ -103,5 +99,43 @@ export class UserController {
     // }catch(error){
     //   res.status(400).send(error)
     // }
+  }
+
+  async addReview(req: Request, res: Response): Promise<any> {
+    try {
+      const { id, eventId } = req.params;
+      const { desc, rating } = req.body;
+
+      if (rating < 1 || rating > 5) {
+        return res.status(400).send({ message: "Rating must be between 1 and 5" });
+      }
+
+      const existingReview = await prisma.review.findFirst({
+        where: {
+          userId: +id,
+          eventId: +eventId,
+        },
+      });
+
+      if (existingReview) {
+        return res.status(400).send({
+          message: "You have already submitted a review for this event",
+        });
+      }
+
+      const newReview = await prisma.review.create({
+        data: {
+          desc,
+          rating,
+          user: { connect: { id: +id } },
+          event: { connect: { id: +eventId } },
+        },
+      });
+
+      res.status(201).send({ message: "New review have been created", newReview });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ message: "error creating review:", error });
+    }
   }
 }

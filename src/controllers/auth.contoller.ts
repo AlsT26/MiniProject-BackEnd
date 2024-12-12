@@ -62,7 +62,6 @@ export class AuthController {
           data: { percentage:10,expiredAt: threeMonthLater, userId: newUser.id},
         });
       }
-      
       res.status(201).send({ message: "Register Successfully ✅" });
     } catch (err) {
       console.log(err);
@@ -131,13 +130,6 @@ export class AuthController {
   }
   async MakeCoupon(req:Request,res:Response){
     try{
-      // const currentDate = new Date();
-      // const threeMonthLater = new Date(currentDate);
-      // threeMonthLater.setMonth(currentDate.getMonth() + 3);
-
-      // const newCoupon = await prisma.user_Coupon.create({
-      //   data: { percentage:10,expiredAt: threeMonthLater,userId: },
-      // });
       res.status(200).send({message:"coupon created success"})
     }catch(error){
       res.status(400).send({message:error})

@@ -133,7 +133,6 @@ export class AuthController {
       res.status(200).send({message:"coupon created success"})
     }catch(error){
       res.status(400).send({message:error})
-  
     }
   }
 }

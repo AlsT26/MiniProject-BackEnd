@@ -7,20 +7,36 @@ import { transporter } from "../services/mailer";
 import path from "path";
 import  fs  from "fs";
 import handlebars from "handlebars";
+import { findReferal } from "../services/referal.service";
+
 export class AuthController {
   async registerUser(req: Request, res: Response) {
     try {
-      const { password, confirmPassword, username, email } = req.body;
+      const { password, confirmPassword, username, email,referal } = req.body;
+
       if (password != confirmPassword) throw { message: "Password not match!" };
 
       const user = await findUser(username, email);
       if (user) throw { message: "username or email has been used !" };
+      if(referal!=""){
+        const ref = await findReferal(referal);
+        if (!ref) throw { message: "referal code not valid !" };
+      }
 
       const salt = await genSalt(10);
       const hashPasword = await hash(password, salt);
 
       const newUser = await prisma.user.create({
         data: { username, email, password: hashPasword },
+      });
+
+      const randomNumber = Math.floor(100 + Math.random() * 900); // 3 random digits
+      const refCode = `${newUser.id}${randomNumber}`;
+
+      // Update user with ref_code
+      await prisma.user.update({
+          where: { id: newUser.id },
+          data: { ref_code: refCode },
       });
 
       const payload = { id: newUser.id};
@@ -37,6 +53,16 @@ export class AuthController {
         subject: "Verify your account",
         html
       });
+      const currentDate = new Date();
+      const threeMonthLater = new Date(currentDate);
+      threeMonthLater.setMonth(currentDate.getMonth() + 3);
+
+      if(referal!=""){
+        await prisma.user_Coupon.create({
+          data: { percentage:10,expiredAt: threeMonthLater, userId: newUser.id},
+        });
+      }
+      
       res.status(201).send({ message: "Register Successfully ✅" });
     } catch (err) {
       console.log(err);
@@ -49,7 +75,7 @@ export class AuthController {
       const user = await findUser(data, data);
 
       if (!user) throw { message: "Account not found !" };
-      if (user.isVerify) throw { message: "Account not Verified !" };
+      if (!user.isVerify) throw { message: "Account not Verified !" };
 
       const isValidPass = await compare(password, user.password);
       if (!isValidPass) {
@@ -103,4 +129,20 @@ export class AuthController {
 
     }
   }
+  async MakeCoupon(req:Request,res:Response){
+    try{
+      // const currentDate = new Date();
+      // const threeMonthLater = new Date(currentDate);
+      // threeMonthLater.setMonth(currentDate.getMonth() + 3);
+
+      // const newCoupon = await prisma.user_Coupon.create({
+      //   data: { percentage:10,expiredAt: threeMonthLater,userId: },
+      // });
+      res.status(200).send({message:"coupon created success"})
+    }catch(error){
+      res.status(400).send({message:error})
+  
+    }
+  }
 }
+

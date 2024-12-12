@@ -42,12 +42,14 @@ export class UserController {
     }
   }
   async AddUser(req: Request, res: Response) {
-    try {
-      await prisma.user.create({ data: req.body });
-      res.status(201).send("User created");
-    } catch (error) {
-      console.log(error);
-    }
+    //jangan pakai ini, pakai auth
+    // try {
+    //   await prisma.user.create({ data: req.body });
+    //   res.status(201).send("User created");
+    // } catch (error) {
+    //   console.log(error);
+    // }
+    res.status(400).json({ message: "jangan pakai ini, pakai auth" });
   }
   async DeleteUser(req: Request, res: Response) {
     try {

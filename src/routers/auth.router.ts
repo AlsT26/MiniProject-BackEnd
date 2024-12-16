@@ -13,9 +13,15 @@ export class AuthRouter {
 
   private initializeRoutes() {
     this.router.post("/", this.authController.registerUser);
+    this.router.get("/promotor", this.authController.show_promotor);
+
     this.router.get("/", this.authController.test);
     this.router.post("/login", this.authController.loginUser);
+    this.router.post("/promotor/login", this.authController.loginPromotor);
+
     this.router.patch("/verify/:token", this.authController.verifyUser);
+    this.router.patch("/promotor/:id", this.authController.EditPromotor);
+
   }
 
   getRouter(): Router {

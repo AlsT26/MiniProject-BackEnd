@@ -8,6 +8,7 @@ import path from "path";
 import fs from "fs";
 import handlebars from "handlebars";
 import { findReferal } from "../services/referal.service";
+import { findPromotor } from "../services/promotor.service";
 
 export class AuthController {
   async registerUser(req: Request, res: Response) {
@@ -145,5 +146,56 @@ export class AuthController {
       res.status(400).send({ message: error });
     }
   }
+  async loginPromotor(req: Request, res: Response) {
+    try {
+      const { data, password } = req.body;
+      const promotor = await findPromotor(data, data);
+
+      if (!promotor) throw { message: "Account not found !" };
+      if (!promotor.isVerify) throw { message: "Account not Verified !" };
+
+      const isValidPass = await compare(password, promotor.password);
+      if (!isValidPass) {
+        throw { message: "Incorrect Password !" };
+      }
+
+      const payload = { id: promotor.id,role:"promotor" };
+      const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "1d" });
+
+      res
+        .status(200)
+        .cookie("token", token, {
+          httpOnly: true,
+          maxAge: 24 * 3600 * 1000,
+          path: "/",
+          secure: process.env.NODE_ENV === "production",
+        })
+        .send({
+          message: "Login Sucessfully ✅",
+          promotor,
+        });
+    } catch (err) {
+      console.log(err);
+      res.status(400).send(err);
+    }
+  }
+  async show_promotor(req: Request, res: Response) {
+    try {
+      const a = await prisma.promotor.findMany()
+      res.status(200).send({ a });
+    } catch (error) {
+      res.status(400).send({ message: error });
+    }
+  }
+    async EditPromotor(req: Request, res: Response) {
+      try {
+        const { id } = req.params;
+        await prisma.promotor.update({ data: req.body, where: { id: +id } });
+        res.status(200).send("success");
+      } catch (error) {
+        console.log(error);
+        res.status(400).send({ error });
+      }
+    }
 }
 

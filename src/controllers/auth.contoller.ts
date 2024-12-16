@@ -106,39 +106,49 @@ export class AuthController {
     }
   }
   async verifyUser(req: Request, res: Response) {
+    const { token } = req.params;
     try {
-      const { token } = req.params;
-      const verifiedUser: any = verify(token, process.env.JWT_KEY!);
-      let zzz = 0
-      if(zzz==0){
-        zzz++;
-        if(!verifiedUser.isVerify){
-          await prisma.user.update({
-            data: { isVerify: true },
-            where: { id: verifiedUser.id },
-          });
-          const currentDate = new Date();
+        const verifiedUser: any = verify(token, process.env.JWT_KEY!);
+
+        // Check if the user is already verified
+        if (verifiedUser.isVerify) {
+            return res.status(400).send({ message: "User is already verified." });
+        }
+
+        // Start a transaction for both update and point creation
+        const currentDate = new Date();
         const threeMonthLater = new Date(currentDate);
         threeMonthLater.setMonth(currentDate.getMonth() + 3);
-  
-        const user = await prisma.user.findFirst({
-            where: { OR: [{ ref_code: verifiedUser.referal }] },
-          });
-        if(user){
-          await prisma.user_Point.create({
-            data: { point:10000,expiredAt:threeMonthLater,userId:user.id },
-          });
-        }
-        }
-      }
-      
-      
-      
-      res.status(200).send({ message: "verify success" });
+
+        const result = await prisma.$transaction(async (prisma) => {
+            // Update the user verification status
+            await prisma.user.update({
+                data: { isVerify: true },
+                where: { id: verifiedUser.id },
+            });
+
+            // Check for the referral user and create points if applicable
+            const user = await prisma.user.findFirst({
+                where: { OR: [{ ref_code: verifiedUser.referal }] },
+            });
+
+            if (user) {
+                await prisma.user_Point.create({
+                    data: { point: 10000, expiredAt: threeMonthLater, userId: user.id },
+                });
+            }
+        });
+
+        // Send success response if the transaction was successful
+        return res.status(200).send({ message: "User verified and points awarded." });
+
     } catch (error) {
-      res.status(400).send({ message: error });
+        // If any error occurs in the transaction, it will be caught here
+        console.error(error);
+        return res.status(500).send({ message: "An error occurred during verification or point creation." });
     }
-  }
+}
+
   async test(req: Request, res: Response) {
     try {
       res.status(200).send({ message: "test success" });

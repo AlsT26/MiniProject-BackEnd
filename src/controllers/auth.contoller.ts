@@ -38,7 +38,7 @@ export class AuthController {
         data: { ref_code: refCode },
       });
 
-      const payload = { id: newUser.id };
+      const payload = { id: newUser.id, referal:referal };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "10m" });
       const link = `http://localhost:3000/verify/${token}`;
 
@@ -84,11 +84,6 @@ export class AuthController {
         throw { message: "Incorrect Password !" };
       }
 
-      //   await prisma.user.update({
-      //     data: { loginAttempt: 0 },
-      //     where: { id: user.id },
-      //   });
-
       const payload = { id: user.id };
       const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "1d" });
 
@@ -113,10 +108,31 @@ export class AuthController {
     try {
       const { token } = req.params;
       const verifiedUser: any = verify(token, process.env.JWT_KEY!);
-      await prisma.user.update({
-        data: { isVerify: true },
-        where: { id: verifiedUser.id },
-      });
+      let zzz = 0
+      if(zzz==0){
+        zzz++;
+        if(!verifiedUser.isVerify){
+          await prisma.user.update({
+            data: { isVerify: true },
+            where: { id: verifiedUser.id },
+          });
+          const currentDate = new Date();
+        const threeMonthLater = new Date(currentDate);
+        threeMonthLater.setMonth(currentDate.getMonth() + 3);
+  
+        const user = await prisma.user.findFirst({
+            where: { OR: [{ ref_code: verifiedUser.referal }] },
+          });
+        if(user){
+          await prisma.user_Point.create({
+            data: { point:10000,expiredAt:threeMonthLater,userId:user.id },
+          });
+        }
+        }
+      }
+      
+      
+      
       res.status(200).send({ message: "verify success" });
     } catch (error) {
       res.status(400).send({ message: error });
@@ -130,3 +146,4 @@ export class AuthController {
     }
   }
 }
+

@@ -12,9 +12,11 @@ export class UserRouter {
     this.router = Router();
     this.initializeRoutes();
   }
-
   private initializeRoutes() {
     this.router.get("/", this.userController.getUsers);
+
+    this.router.get("/coupon", this.userController.coupon);
+    this.router.get("/point", this.userController.point);
     this.router.post("/", this.userController.AddUser);
     this.router.patch(
       "/avatar",

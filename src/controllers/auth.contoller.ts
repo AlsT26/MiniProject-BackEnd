@@ -5,6 +5,7 @@ import { findUser } from "../services/user.service";
 import { sign, verify } from "jsonwebtoken";
 import { transporter } from "../services/mailer";
 import path from "path";
+
 import fs from "fs";
 import handlebars from "handlebars";
 import { findReferal } from "../services/referal.service";
@@ -20,10 +21,12 @@ export class AuthController {
 
       const user = await findUser(username, email);
       if (user) throw { message: "username or email has been used !" };
+
       if (referal != "") {
         const ref = await findReferal(referal);
         if (!ref) throw { message: "referal code not valid !" };
       }
+
 
       const salt = await genSalt(10);
       const hashPasword = await hash(password, salt);
@@ -31,6 +34,7 @@ export class AuthController {
       const newUser = await prisma.user.create({
         data: { username, email, password: hashPasword },
       });
+
 
       const randomNumber = Math.floor(100 + Math.random() * 900);
       const refCode = `${newUser.id}${randomNumber}`;
@@ -48,10 +52,12 @@ export class AuthController {
       const templateSource = fs.readFileSync(templatePath, "utf-8");
       const compiledTemplate = handlebars.compile(templateSource);
       const html = compiledTemplate({ username, link });
+
       await transporter.sendMail({
         from: "sandieswendies@gmail.com",
         to: email,
         subject: "Verify your account",
+
         html,
       });
       const currentDate = new Date();
@@ -69,6 +75,7 @@ export class AuthController {
       }
       res.status(201).send({ message: "Register Successfully ✅" });
     })} catch (err) {
+
       console.log(err);
       res.status(400).send(err);
     }
@@ -80,6 +87,7 @@ export class AuthController {
       const user = await findUser(data, data);
 
       if (!user) throw { message: "Account not found !" };
+
       if (!user.isVerify) throw { message: "Account not Verified !" };
 
       const isValidPass = await compare(password, user.password);
@@ -186,6 +194,7 @@ export class AuthController {
       res.status(400).send(err);
     }
   }
+
   async show_promotor(req: Request, res: Response) {
     try {
       const a = await prisma.promotor.findMany()
@@ -269,4 +278,3 @@ export class AuthController {
       }
   }
 }
-

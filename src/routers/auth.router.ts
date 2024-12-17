@@ -24,7 +24,6 @@ export class AuthRouter {
     this.router.patch("/promotor/verify/:token", this.authController.verifyPromotor);
 
     this.router.patch("/promotor/:id", this.authController.EditPromotor);
-
   }
 
   getRouter(): Router {

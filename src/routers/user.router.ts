@@ -14,9 +14,9 @@ export class UserRouter {
   }
   private initializeRoutes() {
     this.router.get("/", this.userController.getUsers);
+
     this.router.get("/coupon", this.userController.coupon);
     this.router.get("/point", this.userController.point);
-
     this.router.post("/", this.userController.AddUser);
     this.router.patch(
       "/avatar",
@@ -33,6 +33,7 @@ export class UserRouter {
     );
     this.router.patch("/:id", this.userController.EditUser);
     this.router.delete("/:id", this.userController.DeleteUser);
+    this.router.post("/:id/:eventId/review", this.userController.addReview);
   }
   getRouter(): Router {
     return this.router;

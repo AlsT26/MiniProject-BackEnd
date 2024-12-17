@@ -37,14 +37,7 @@ export class UserController {
       res.status(400).send({ error });
     }
   }
-  async AddUser(req: Request, res: Response) {
-    try {
-      await prisma.user.create({ data: req.body });
-      res.status(201).send("User created");
-    } catch (error) {
-      console.log(error);
-    }
-  }
+
   async DeleteUser(req: Request, res: Response) {
     try {
       const { id } = req.params;
@@ -99,6 +92,22 @@ export class UserController {
     // }catch(error){
     //   res.status(400).send(error)
     // }
+  }
+  async coupon(req: Request, res: Response) {
+    try {
+      const coupon = await prisma.user_Coupon.findMany();
+      res.status(200).send({ coupon });
+    } catch (error) {
+      res.status(400).send({ message: error });
+    }
+  }
+  async point(req: Request, res: Response) {
+    try {
+      const point = await prisma.user_Point.findMany();
+      res.status(200).send({ point });
+    } catch (error) {
+      res.status(400).send({ message: error });
+    }
   }
 
   async addReview(req: Request, res: Response): Promise<any> {

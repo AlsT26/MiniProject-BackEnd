@@ -1,5 +1,7 @@
 import { Prisma, PrismaClient } from "@prisma/client";
 import { Request, Response } from "express";
+import { createSlug } from "../helpers/slugMaker";
+import { cloudinaryUpload } from "../services/cloudinary";
 
 const prisma = new PrismaClient();
 
@@ -60,16 +62,18 @@ export class PromotorController {
       const promotor = await prisma.promotor.findUnique({
         where: { id: +promotorId },
       });
+      const slug = createSlug(title);
 
       if (!promotor) {
         return res.status(404).send({ message: "Promotor not found" });
       }
       const dateTime = new Date(`${date}T${time}Z`);
-      // const dateTime = new Date(`${date}T${time}`);
-      console.log(dateTime);
+
       if (isNaN(dateTime.getTime())) {
         return res.status(400).send({ message: "Invalid date or time formattttt" });
       }
+      if (!req.file) throw { message: "thumbnail empty" };
+      const { pict_url } = await cloudinaryUpload(req.file, "TicketHub");
 
       const newEvent = await prisma.event.create({
         data: {
@@ -78,6 +82,7 @@ export class PromotorController {
           category,
           location,
           venue,
+          slug,
           date: dateTime,
           time: dateTime,
           promotor: {

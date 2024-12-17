@@ -87,11 +87,13 @@ model Event {
   id          Int      @id @default(autoincrement())
   title       String
   description String
+  slug        String   @default(" ")
   category    EventCategories
   location    String
   venue       String
   date        DateTime
   time        DateTime
+  thumbnail   String?
 
   promotor    Promotor @relation(fields: [promotorId], references: [id])
   promotorId  Int

@@ -5,6 +5,7 @@ import { AuthRouter } from "./routers/auth.router";
 import { PromotorRouter } from "./routers/promotor.router";
 import cookieParser from "cookie-parser";
 import path from "path";
+import { EventRouter } from "./routers/event.router";
 const PORT: number = 8000;
 
 const app: Application = express();
@@ -22,10 +23,12 @@ app.get("/api", (req: Request, res: Response) => {
 const userRouter = new UserRouter();
 const authRouter = new AuthRouter();
 const promotorRouter = new PromotorRouter();
+const eventRouter = new EventRouter();
 
 app.use("/api/auth", authRouter.getRouter());
 app.use("/api/users", userRouter.getRouter());
 app.use("/api/promotor", promotorRouter.getRouter());
+app.use("/api/event", eventRouter.getRouter());
 app.listen(PORT, () => {
   console.log(`server running on -> http://localhost:${PORT}/api`);
 });

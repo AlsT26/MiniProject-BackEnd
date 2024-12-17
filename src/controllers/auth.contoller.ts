@@ -13,6 +13,7 @@ import { findPromotor } from "../services/promotor.service";
 export class AuthController {
   async registerUser(req: Request, res: Response) {
     try {
+      await prisma.$transaction(async (prisma) => {
       const { password, confirmPassword, username, email, referal } = req.body;
 
       if (password != confirmPassword) throw { message: "Password not match!" };
@@ -67,13 +68,14 @@ export class AuthController {
         });
       }
       res.status(201).send({ message: "Register Successfully ✅" });
-    } catch (err) {
+    })} catch (err) {
       console.log(err);
       res.status(400).send(err);
     }
   }
   async loginUser(req: Request, res: Response) {
     try {
+      await prisma.$transaction(async (prisma) => {
       const { data, password } = req.body;
       const user = await findUser(data, data);
 
@@ -99,7 +101,7 @@ export class AuthController {
         .send({
           message: "Login Sucessfully ✅",
           user,
-        });
+        });})
     } catch (err) {
       console.log(err);
       res.status(400).send(err);
@@ -110,24 +112,20 @@ export class AuthController {
     try {
         const verifiedUser: any = verify(token, process.env.JWT_KEY!);
 
-        // Check if the user is already verified
         if (verifiedUser.isVerify) {
-            return res.status(400).send({ message: "User is already verified." });
+            res.status(400).send({ message: "User is already verified." });
         }
 
-        // Start a transaction for both update and point creation
         const currentDate = new Date();
         const threeMonthLater = new Date(currentDate);
         threeMonthLater.setMonth(currentDate.getMonth() + 3);
 
-        const result = await prisma.$transaction(async (prisma) => {
-            // Update the user verification status
+        await prisma.$transaction(async (prisma) => {
             await prisma.user.update({
                 data: { isVerify: true },
                 where: { id: verifiedUser.id },
             });
 
-            // Check for the referral user and create points if applicable
             const user = await prisma.user.findFirst({
                 where: { OR: [{ ref_code: verifiedUser.referal }] },
             });
@@ -139,13 +137,11 @@ export class AuthController {
             }
         });
 
-        // Send success response if the transaction was successful
-        return res.status(200).send({ message: "User verified and points awarded." });
+        res.status(200).send({ message: "User verified and points awarded." });
 
     } catch (error) {
-        // If any error occurs in the transaction, it will be caught here
         console.error(error);
-        return res.status(500).send({ message: "An error occurred during verification or point creation." });
+        res.status(500).send({ message: "An error occurred during verification or point creation." });
     }
 }
 
@@ -158,6 +154,7 @@ export class AuthController {
   }
   async loginPromotor(req: Request, res: Response) {
     try {
+      await prisma.$transaction(async (prisma) => {
       const { data, password } = req.body;
       const promotor = await findPromotor(data, data);
 
@@ -184,7 +181,7 @@ export class AuthController {
           message: "Login Sucessfully ✅",
           promotor,
         });
-    } catch (err) {
+    })} catch (err) {
       console.log(err);
       res.status(400).send(err);
     }
@@ -207,5 +204,69 @@ export class AuthController {
         res.status(400).send({ error });
       }
     }
+
+    async RegisterPromotor(req: Request, res: Response) {
+      try {
+        await prisma.$transaction(async (prisma) => {
+        const { password, confirmPassword, name, email} = req.body;
+  
+        if (password != confirmPassword) throw { message: "Password not match!" };
+  
+        const user = await findPromotor(name, email);
+        if (user) throw { message: "username or email has been used !" };
+        
+  
+        const salt = await genSalt(10);
+        const hashPasword = await hash(password, salt);
+  
+        const newPromotor = await prisma.promotor.create({
+          data: { name, email, password: hashPasword },
+        });
+
+  
+        const payload = { id: newPromotor.id};
+        const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "10m" });
+        const link = `http://localhost:3000/promotor/verify/${token}`;
+  
+        const templatePath = path.join(__dirname, "../templates", "verify.hbs");
+        const templateSource = fs.readFileSync(templatePath, "utf-8");
+        const compiledTemplate = handlebars.compile(templateSource);
+        const html = compiledTemplate({ name, link });
+        await transporter.sendMail({
+          from: "sandieswendies@gmail.com",
+          to: email,
+          subject: "Verify your account",
+          html,
+        });
+        
+        res.status(201).send({ message: "Register Successfully ✅" });
+      })} catch (err) {
+        console.log(err);
+        res.status(400).send(err);
+      }
+    }
+    async verifyPromotor(req: Request, res: Response) {
+      const { token } = req.params;
+      try {
+          const verifiedPromotor: any = verify(token, process.env.JWT_KEY!);
+  
+          if (verifiedPromotor.isVerify) {
+              res.status(400).send({ message: "User is already verified." });
+          }
+  
+          await prisma.$transaction(async (prisma) => {
+              await prisma.promotor.update({
+                  data: { isVerify: true },
+                  where: { id: verifiedPromotor.id },
+              });
+          });
+  
+          res.status(200).send({ message: "User verified" });
+  
+      } catch (error) {
+          console.error(error);
+          res.status(500).send({ message: "An error occurred during verification" });
+      }
+  }
 }
 

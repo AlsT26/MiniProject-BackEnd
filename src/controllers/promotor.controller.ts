@@ -73,7 +73,7 @@ export class PromotorController {
         return res.status(400).send({ message: "Invalid date or time formattttt" });
       }
       if (!req.file) throw { message: "thumbnail empty" };
-      const { pict_url } = await cloudinaryUpload(req.file, "TicketHub");
+      const { secure_url } = await cloudinaryUpload(req.file, "TicketHub");
 
       const newEvent = await prisma.event.create({
         data: {
@@ -83,14 +83,10 @@ export class PromotorController {
           location,
           venue,
           slug,
+          thumbnail: secure_url,
           date: dateTime,
           time: dateTime,
-          promotor: {
-            connect: { id: +promotorId },
-          },
-        },
-        include: {
-          promotor: true,
+          promotorId: +promotorId,
         },
       });
 

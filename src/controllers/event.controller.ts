@@ -1,4 +1,4 @@
-import { EventCategories, Prisma } from "@prisma/client";
+import { EventCategories, Prisma } from "../../prisma/generated/client";
 import { Request, Response } from "express";
 import prisma from "../prisma";
 
@@ -54,8 +54,18 @@ export class EventController {
           category: true,
           location: true,
           venue: true,
+          thumbnail: true,
           date: true,
           time: true,
+          tickets: {
+            select: {
+              id: true,
+              title: true,
+              desc: true,
+              available: true,
+              totalSeats: true,
+            },
+          },
           promotor: {
             select: {
               name: true,
@@ -73,13 +83,13 @@ export class EventController {
 
   async setTicket(req: Request, res: Response): Promise<any> {
     try {
-      const { eventSlug } = req.params;
+      const { slug } = req.params;
       const { totalSeats, title, desc, price } = req.body;
 
       const event = await prisma.event.findFirst({
-        where: { slug: eventSlug },
+        where: { slug: slug },
       });
-
+      console.log(slug);
       const createTickets = await prisma.ticket.create({
         data: {
           title,
@@ -97,4 +107,13 @@ export class EventController {
       res.status(404).send({ message: error });
     }
   }
+
+  //   async getTicketsBySlug(req: Request, res: Response){
+  //     try {
+
+  //     } catch (error) {
+  //         console.log(error);
+  //         res.status(404).send({ message: error})
+  //     }
+  //   }
 }

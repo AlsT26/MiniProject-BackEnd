@@ -1,3 +1,4 @@
+
 import { EventCategories, Prisma } from "../../prisma/generated/client";
 import { Request, Response } from "express";
 import prisma from "../prisma";

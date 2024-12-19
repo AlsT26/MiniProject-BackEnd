@@ -17,7 +17,6 @@ export class UserRouter {
 
     this.router.get("/coupon", this.userController.coupon);
     this.router.get("/point", this.userController.point);
-    this.router.post("/", this.userController.AddUser);
     this.router.patch(
       "/avatar",
       verifyToken,

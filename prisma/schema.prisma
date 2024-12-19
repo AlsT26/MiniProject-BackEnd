@@ -85,13 +85,16 @@ model Promotor {
 
 model Event {
   id          Int      @id @default(autoincrement())
-  title       String
+  title       String   @unique
   description String
+  slug        String   @unique
   category    EventCategories
   location    String
   venue       String
   date        DateTime
   time        DateTime
+  isActive    Boolean @default(true)
+  thumbnail   String
 
   promotor    Promotor @relation(fields: [promotorId], references: [id])
   promotorId  Int
@@ -108,8 +111,9 @@ model Ticket {
   id          Int      @id @default(autoincrement())
   title       String
   desc        String
-  seats       Int
   price       BigInt
+  available   Int
+  totalSeats  Int
 
   event       Event    @relation(fields: [eventId], references: [id])
   eventId     Int

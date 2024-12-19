@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { PromotorController } from "../controllers/promotor.controller";
+import { uploader } from "../services/uploader";
 
 export class PromotorRouter {
   private promotorController: PromotorController;
@@ -15,7 +16,7 @@ export class PromotorRouter {
     this.router.get("/", this.promotorController.getPromotors);
     this.router.post("/", this.promotorController.createPromotor);
     this.router.get("/:id", this.promotorController.getPromotorById);
-    this.router.post("/:promotorId/event", this.promotorController.createEvent);
+    this.router.post("/:promotorId/event", uploader("memoryStorage", "event-").single("thumbnail"), this.promotorController.createEvent);
   }
 
   getRouter(): Router {

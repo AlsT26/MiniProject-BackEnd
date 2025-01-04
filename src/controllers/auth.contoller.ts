@@ -98,15 +98,10 @@ export class AuthController {
 
         res
           .status(200)
-          .cookie("token", token, {
-            httpOnly: true,
-            maxAge: 24 * 3600 * 1000,
-            path: "/",
-            secure: process.env.NODE_ENV === "production",
-          })
           .send({
             message: "Login Sucessfully ✅",
             user,
+            token
           });
       });
     } catch (err) {
@@ -177,15 +172,10 @@ export class AuthController {
 
         res
           .status(200)
-          .cookie("token", token, {
-            httpOnly: true,
-            maxAge: 24 * 3600 * 1000,
-            path: "/",
-            secure: process.env.NODE_ENV === "production",
-          })
           .send({
             message: "Login Sucessfully ✅",
             promotor,
+            token
           });
       });
     } catch (err) {

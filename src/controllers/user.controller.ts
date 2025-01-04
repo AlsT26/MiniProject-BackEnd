@@ -95,6 +95,24 @@ export class UserController {
     // }
   }
   async coupon(req: Request, res: Response) {
+
+    try {
+      const coupon = await prisma.user_Coupon.findMany();
+      res.status(200).send({ coupon });
+    } catch (error) {
+      res.status(400).send({ message: error });
+    }
+  }
+  async point(req: Request, res: Response) {
+    try {
+      const point = await prisma.user_Point.findMany();
+      res.status(200).send({ point });
+    } catch (error) {
+      res.status(400).send({ message: error });
+    }
+  }
+
+  async addReview(req: Request, res: Response): Promise<any> {
     try {
       const coupon = await prisma.user_Coupon.findMany();
       res.status(200).send({ coupon });

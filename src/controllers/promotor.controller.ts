@@ -58,7 +58,7 @@ export class PromotorController {
     try {
       const { promotorId } = req.params;
       // console.log(req.params.promotorId);
-      const { title, description, category, location, venue, date, time } = req.body;
+      const { title, description, category, location, venue, dateTime } = req.body;
       const promotor = await prisma.promotor.findUnique({
         where: { id: +promotorId },
       });
@@ -66,11 +66,6 @@ export class PromotorController {
 
       if (!promotor) {
         return res.status(404).send({ message: "Promotor not found" });
-      }
-      const dateTime = new Date(`${date}T${time}Z`);
-
-      if (isNaN(dateTime.getTime())) {
-        return res.status(400).send({ message: "Invalid date or time formattttt" });
       }
       if (!req.file) throw { message: "thumbnail empty" };
       const { secure_url } = await cloudinaryUpload(req.file, "TicketHub");
@@ -84,8 +79,7 @@ export class PromotorController {
           venue,
           slug,
           thumbnail: secure_url,
-          date: dateTime,
-          time: dateTime,
+          dateTime,
           promotorId: +promotorId,
         },
       });

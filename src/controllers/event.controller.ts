@@ -55,8 +55,7 @@ export class EventController {
           location: true,
           venue: true,
           thumbnail: true,
-          date: true,
-          time: true,
+          dateTime: true,
           tickets: {
             select: {
               id: true,
@@ -64,6 +63,7 @@ export class EventController {
               desc: true,
               available: true,
               totalSeats: true,
+              price: true,
             },
           },
           promotor: {
@@ -107,13 +107,4 @@ export class EventController {
       res.status(404).send({ message: error });
     }
   }
-
-  //   async getTicketsBySlug(req: Request, res: Response){
-  //     try {
-
-  //     } catch (error) {
-  //         console.log(error);
-  //         res.status(404).send({ message: error})
-  //     }
-  //   }
 }

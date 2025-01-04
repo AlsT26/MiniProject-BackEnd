@@ -6,7 +6,7 @@ async function updateEventStatus() {
     const currentDate = new Date();
     await prisma.event.updateMany({
       where: {
-        date: { lt: currentDate },
+        dateTime: { lt: currentDate },
         isActive: true,
       },
       data: {

@@ -99,14 +99,16 @@ export class AuthController {
         res
           .status(200)
           .cookie("token", token, {
-            httpOnly: true,
+            httpOnly: false,
             maxAge: 24 * 3600 * 1000,
             path: "/",
             secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
           })
           .send({
             message: "Login Sucessfully ✅",
             user,
+            token,
           });
       });
     } catch (err) {

@@ -16,7 +16,7 @@ export class PromotorRouter {
     this.router.get("/", this.promotorController.getPromotors);
     this.router.post("/", this.promotorController.createPromotor);
     this.router.get("/:id", this.promotorController.getPromotorById);
-    this.router.post("/:promotorId/event", uploader("memoryStorage", "event-").single("thumbnail"), this.promotorController.createEvent);
+    this.router.post("/event", uploader("memoryStorage", "event-").single("thumbnail"), this.promotorController.createEvent);
   }
 
   getRouter(): Router {

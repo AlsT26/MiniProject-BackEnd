@@ -20,6 +20,7 @@ enum EventCategories {
   Food
   Free
   Paid
+  Game
 }
 
 enum OrderStatus {
@@ -92,8 +93,7 @@ model Event {
   category    EventCategories
   location    String
   venue       String
-  date        DateTime
-  time        DateTime
+  dateTime    DateTime
   isActive    Boolean         @default(true)
   thumbnail   String
 
@@ -102,7 +102,6 @@ model Event {
 
   tickets Ticket[]
   reviews Review[]
-  orders  Order[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -112,7 +111,7 @@ model Ticket {
   id         Int    @id @default(autoincrement())
   title      String
   desc       String
-  price      BigInt
+  price      Int
   available  Int
   totalSeats Int
 
@@ -127,14 +126,12 @@ model Ticket {
 
 model Order {
   id           Int             @id @default(autoincrement())
-  total_price  BigInt
-  final_price  BigInt
+  total_price  Int
+  final_price  Int
   status       OrderStatus     @default(Pending)
   redirect_url String?
   user         User            @relation(fields: [userId], references: [id])
   userId       Int
-  event        Event           @relation(fields: [eventId], references: [id])
-  eventId      Int
   expiredAt    DateTime
   details      Order_Details[]
 

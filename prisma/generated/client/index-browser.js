@@ -17,12 +17,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.0.1
- * Query Engine version: 5dbef10bdbfb579e07d35cc85fb1518d357cb99e
+ * Prisma Client JS version: 6.1.0
+ * Query Engine version: 11f085a2012c0f4778414c8db2651556ee0ef959
  */
 Prisma.prismaVersion = {
-  client: "6.0.1",
-  engine: "5dbef10bdbfb579e07d35cc85fb1518d357cb99e"
+  client: "6.1.0",
+  engine: "11f085a2012c0f4778414c8db2651556ee0ef959"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -166,8 +166,7 @@ exports.Prisma.EventScalarFieldEnum = {
   category: 'category',
   location: 'location',
   venue: 'venue',
-  date: 'date',
-  time: 'time',
+  dateTime: 'dateTime',
   isActive: 'isActive',
   thumbnail: 'thumbnail',
   promotorId: 'promotorId',
@@ -194,7 +193,6 @@ exports.Prisma.OrderScalarFieldEnum = {
   status: 'status',
   redirect_url: 'redirect_url',
   userId: 'userId',
-  eventId: 'eventId',
   expiredAt: 'expiredAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -240,7 +238,8 @@ exports.EventCategories = exports.$Enums.EventCategories = {
   Tech: 'Tech',
   Food: 'Food',
   Free: 'Free',
-  Paid: 'Paid'
+  Paid: 'Paid',
+  Game: 'Game'
 };
 
 exports.OrderStatus = exports.$Enums.OrderStatus = {

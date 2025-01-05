@@ -4,8 +4,8 @@ import { UserPayload } from "../custom";
 
 export const verifyToken = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // const token = req.header("Authorization")?.replace("Bearer ", "");
-    const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
+    const token = req.header("Authorization")?.replace("Bearer ", "");
+    // const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
     if (!token) {
       res.status(401).send({ message: "Unauthorized: no token provided" });
       return;

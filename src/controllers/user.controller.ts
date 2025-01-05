@@ -7,7 +7,6 @@ export class UserController {
   async getUsers(req: Request, res: Response) {
     try {
       console.log(req.user);
-      console.log(req.user);
       const { search, page = 1 } = req.query;
       const { user } = req.body;
       console.log("user", user);

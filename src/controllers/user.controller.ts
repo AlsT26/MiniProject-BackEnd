@@ -95,6 +95,7 @@ export class UserController {
     // }
   }
   async coupon(req: Request, res: Response) {
+
     try {
       const coupon = await prisma.user_Coupon.findMany();
       res.status(200).send({ coupon });

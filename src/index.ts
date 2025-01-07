@@ -7,16 +7,19 @@ import cookieParser from "cookie-parser";
 import path from "path";
 import { EventRouter } from "./routers/event.router";
 import { OrderRouter } from "./routers/order.router";
+import multer from "multer";
 const PORT: number = 8000;
 
 const app: Application = express();
 app.use(express.json());
 app.use(
   cors({
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     origin: process.env.BASE_URL_FE,
     credentials: true,
   })
 );
+export const upload = multer({ storage: multer.memoryStorage() });
 app.use(cookieParser());
 app.get("/api", (req: Request, res: Response) => {
   res.status(200).send("welcome to api");

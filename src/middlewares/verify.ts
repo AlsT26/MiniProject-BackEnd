@@ -4,15 +4,17 @@ import { UserPayload } from "../custom";
 
 export const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // const token = req.header("Authorization")?.replace("Bearer ", "");
-    const token = req.cookies?.token;
-    if (!token) throw "Unauthorize";
+    const authHeader = req.header("Authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      throw "Unauthorize";
+    }
+    const token = authHeader.replace("Bearer ", "");
     const verifiedUser = verify(token, process.env.JWT_KEY!);
     req.user = verifiedUser as UserPayload;
     next();
   } catch (error) {
     console.log(error);
-    res.status(400).send(error);
+    res.status(400).send({ message: "Unauthorize" });
   }
 };
 

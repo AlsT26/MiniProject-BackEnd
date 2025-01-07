@@ -6,13 +6,14 @@ import { PromotorRouter } from "./routers/promotor.router";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { EventRouter } from "./routers/event.router";
+import { OrderRouter } from "./routers/order.router";
 const PORT: number = 8000;
 
 const app: Application = express();
 app.use(express.json());
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.BASE_URL_FE,
     credentials: true,
   })
 );
@@ -24,11 +25,13 @@ const userRouter = new UserRouter();
 const authRouter = new AuthRouter();
 const promotorRouter = new PromotorRouter();
 const eventRouter = new EventRouter();
+const orderRouter = new OrderRouter();
 
 app.use("/api/auth", authRouter.getRouter());
 app.use("/api/users", userRouter.getRouter());
 app.use("/api/promotor", promotorRouter.getRouter());
 app.use("/api/event", eventRouter.getRouter());
+app.use("/api/order", orderRouter.getRouter());
 app.listen(PORT, () => {
   console.log(`server running on -> http://localhost:${PORT}/api`);
 });

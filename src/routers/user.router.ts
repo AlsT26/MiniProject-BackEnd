@@ -1,7 +1,6 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
 import { checkAdmin, verifyToken } from "../middlewares/verify";
-// import { uploader } from "../services/uploader";
 
 export class UserRouter {
   private userController: UserController;

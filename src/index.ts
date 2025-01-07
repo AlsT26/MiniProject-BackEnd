@@ -18,7 +18,7 @@ app.use(
   })
 );
 app.use(cookieParser());
-app.get("/api", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
   res.status(200).send("welcome to api");
 });
 const userRouter = new UserRouter();

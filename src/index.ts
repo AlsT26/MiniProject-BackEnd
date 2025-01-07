@@ -9,7 +9,6 @@ import { EventRouter } from "./routers/event.router";
 import { OrderRouter } from "./routers/order.router";
 import multer from "multer";
 const PORT: number = 8000;
-
 const app: Application = express();
 app.use(express.json());
 app.use(

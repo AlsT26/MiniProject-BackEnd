@@ -93,7 +93,7 @@ export class AuthController {
           throw { message: "Incorrect Password !" };
         }
 
-        const payload = { id: user.id };
+        const payload = { id: user.id ,role:"User"};
         const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "1d" });
 
         res

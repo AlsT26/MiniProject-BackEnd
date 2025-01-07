@@ -98,10 +98,18 @@ export class AuthController {
 
         res
           .status(200)
+
+          .cookie("token", token, {
+            httpOnly: false,
+            maxAge: 24 * 3600 * 1000,
+            path: "/",
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+          })
           .send({
             message: "Login Sucessfully ✅",
             user,
-            token
+            token,
           });
       });
     } catch (err) {
@@ -170,13 +178,11 @@ export class AuthController {
         const payload = { id: promotor.id, role: "Promotor" };
         const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "1d" });
 
-        res
-          .status(200)
-          .send({
-            message: "Login Sucessfully ✅",
-            promotor,
-            token
-          });
+        res.status(200).send({
+          message: "Login Sucessfully ✅",
+          promotor,
+          token,
+        });
       });
     } catch (err) {
       console.log(err);

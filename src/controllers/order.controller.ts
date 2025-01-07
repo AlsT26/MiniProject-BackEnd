@@ -1,6 +1,7 @@
 import { addMinutes } from "date-fns";
 import { PrismaClient } from "../../prisma/generated/client";
 import { Request, Response } from "express";
+const midtransClient = require("midtrans-client");
 
 const prisma = new PrismaClient();
 
@@ -11,7 +12,7 @@ export class OrderController {
       const userId = req.user?.id;
 
       // Log userId for debugging
-      console.log(req.body);
+      console.log("this is req body", req.body);
       console.log("User ID:", userId);
 
       // Validate userId
@@ -19,10 +20,11 @@ export class OrderController {
         return res.status(401).send({ message: "Unauthorized user" });
       }
 
+      console.log("so far so good: creating new order");
       // Validate request body
-      if (!total_price || !final_price || !Array.isArray(tickets) || tickets.length === 0) {
-        return res.status(400).send({ message: "Invalid input data" });
-      }
+      // if (!total_price || !final_price || !Array.isArray(tickets) || tickets.length === 0) {
+      //   return res.status(400).send({ message: "Invalid input data" });
+      // }
 
       // Expiry time for the order
       const expiredAt = addMinutes(new Date(), 10);
@@ -58,9 +60,6 @@ export class OrderController {
           data: {
             total_price,
             final_price,
-            // user: {
-            //   connect: { id: +userId }, // Connect to existing user
-            // },
             userId,
             expiredAt,
             details: {

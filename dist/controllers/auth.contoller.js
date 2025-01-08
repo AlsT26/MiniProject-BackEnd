@@ -87,7 +87,7 @@ class AuthController {
     loginUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield prisma_1.default.$transaction((prisma) => __awaiter(this, void 0, void 0, function* () {
+                yield prisma_1.default.$transaction(() => __awaiter(this, void 0, void 0, function* () {
                     const { data, password } = req.body;
                     const user = yield (0, user_service_1.findUser)(data, data);
                     if (!user)
@@ -102,17 +102,10 @@ class AuthController {
                     const token = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_KEY, { expiresIn: "1d" });
                     res
                         .status(200)
-                        .cookie("token", token, {
-                        httpOnly: false,
-                        maxAge: 24 * 3600 * 1000,
-                        path: "/",
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "strict",
-                    })
                         .send({
                         message: "Login Sucessfully ✅",
-                        user,
                         token,
+                        user,
                     });
                 }));
             }

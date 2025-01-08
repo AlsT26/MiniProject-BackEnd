@@ -106,5 +106,46 @@ class OrderController {
             }
         });
     }
+    getUserOrder(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                console.log("Fetching order for user ID:", userId);
+                if (!userId) {
+                    return res.status(404).send({ message: "Unauthorized User" });
+                }
+                const userOrders = yield prisma.order.findMany({
+                    where: {
+                        userId: userId,
+                    },
+                    select: {
+                        id: true,
+                        total_price: true,
+                        final_price: true,
+                        status: true,
+                        createdAt: true,
+                        details: {
+                            select: {
+                                ticketId: true,
+                                qty: true,
+                            },
+                        },
+                    },
+                });
+                if (userOrders.length === 0) {
+                    return res.status(404).send({ message: `This user with id ${userId} haven't made any orders` });
+                }
+                res.status(200).send({
+                    message: "User orders fetched successfully",
+                    orders: userOrders,
+                });
+            }
+            catch (error) {
+                console.error("Error fetching user orders:", error);
+                res.status(500).send({ message: "Order: Server Error", error });
+            }
+        });
+    }
 }
 exports.OrderController = OrderController;

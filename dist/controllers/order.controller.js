@@ -150,7 +150,6 @@ class OrderController {
                 if (userOrders.length === 0) {
                     return res.status(404).send({ message: `This user with id ${userId} haven't made any orders` });
                 }
-                // Transform the response to include relevant event details
                 const transformedOrders = userOrders.map((order) => ({
                     id: order.id,
                     total_price: order.total_price,
@@ -175,6 +174,7 @@ class OrderController {
             }
         });
     }
+
     getUserOrdersByStatus(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a;

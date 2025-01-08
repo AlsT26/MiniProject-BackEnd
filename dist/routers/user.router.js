@@ -14,6 +14,7 @@ class UserRouter {
         this.router.get("/", this.userController.getUsers);
         this.router.get("/coupon", this.userController.coupon);
         this.router.get("/point", this.userController.point);
+        // this.router.post("/", this.userController.AddUser);
         this.router.patch("/avatar", verify_1.verifyToken, 
         // uploader("diskStorage", "avatar-", "/avatar").single("file"),
         this.userController.EditAvatar);

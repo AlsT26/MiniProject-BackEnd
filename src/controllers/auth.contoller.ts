@@ -80,7 +80,7 @@ export class AuthController {
   }
   async loginUser(req: Request, res: Response) {
     try {
-      await prisma.$transaction(async (prisma) => {
+      await prisma.$transaction(async () => {
         const { data, password } = req.body;
         const user = await findUser(data, data);
 
@@ -98,20 +98,13 @@ export class AuthController {
 
         res
           .status(200)
-
-          .cookie("token", token, {
-            httpOnly: false,
-            maxAge: 24 * 3600 * 1000,
-            path: "/",
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-          })
           .send({
             message: "Login Sucessfully ✅",
-            user,
             token,
+            user,
           });
       });
+      
     } catch (err) {
       console.log(err);
       res.status(400).send(err);

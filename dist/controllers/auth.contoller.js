@@ -106,6 +106,7 @@ class AuthController {
                         message: "Login Sucessfully ✅",
                         token,
                         user,
+                        token,
                     });
                 }));
             }

@@ -158,22 +158,22 @@ export class AuthController {
     try {
       await prisma.$transaction(async (prisma) => {
         const { data, password } = req.body;
-        const promotor = await findPromotor(data, data);
+        const user = await findPromotor(data, data);
 
-        if (!promotor) throw { message: "Account not found !" };
-        if (!promotor.isVerify) throw { message: "Account not Verified !" };
+        if (!user) throw { message: "Account not found !" };
+        if (!user.isVerify) throw { message: "Account not Verified !" };
 
-        const isValidPass = await compare(password, promotor.password);
+        const isValidPass = await compare(password, user.password);
         if (!isValidPass) {
           throw { message: "Incorrect Password !" };
         }
 
-        const payload = { id: promotor.id, role: "Promotor" };
+        const payload = { id: user.id, role: "Promotor" };
         const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "1d" });
 
         res.status(200).send({
           message: "Login Sucessfully ✅",
-          promotor,
+          user,
           token,
         });
       });

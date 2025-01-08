@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { UserController } from "../controllers/user.controller";
-import { checkAdmin, verifyToken } from "../middlewares/verify";
+import { verifyToken } from "../middlewares/verify";
 
 export class UserRouter {
   private userController: UserController;
@@ -16,6 +16,8 @@ export class UserRouter {
 
     this.router.get("/coupon", this.userController.coupon);
     this.router.get("/point", this.userController.point);
+    // this.router.post("/", this.userController.AddUser);
+
     this.router.patch(
       "/avatar",
       verifyToken,

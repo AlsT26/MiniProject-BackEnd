@@ -103,4 +103,46 @@ export class OrderController {
       res.status(400).send({ message: "Error updating order status", error });
     }
   }
+
+  async getUserOrder(req: Request, res: Response): Promise<any> {
+    try {
+      const userId = req.user?.id;
+
+      console.log("Fetching order for user ID:", userId);
+      if (!userId) {
+        return res.status(404).send({ message: "Unauthorized User" });
+      }
+
+      const userOrders = await prisma.order.findMany({
+        where: {
+          userId: userId,
+        },
+        select: {
+          id: true,
+          total_price: true,
+          final_price: true,
+          status: true,
+          createdAt: true,
+          details: {
+            select: {
+              ticketId: true,
+              qty: true,
+            },
+          },
+        },
+      });
+
+      if (userOrders.length === 0) {
+        return res.status(404).send({ message: `This user with id ${userId} haven't made any orders` });
+      }
+
+      res.status(200).send({
+        message: "User orders fetched successfully",
+        orders: userOrders,
+      });
+    } catch (error) {
+      console.error("Error fetching user orders:", error);
+      res.status(500).send({ message: "Order: Server Error", error });
+    }
+  }
 }

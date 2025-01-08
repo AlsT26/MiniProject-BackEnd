@@ -12,30 +12,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.checkAdmin = exports.verifyToken = void 0;
 const jsonwebtoken_1 = require("jsonwebtoken");
 const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
     try {
-        // const token = req.header("Authorization")?.replace("Bearer ", "");
-        const token = (_a = req.cookies) === null || _a === void 0 ? void 0 : _a.token;
-        if (!token)
+        const authHeader = req.header("Authorization");
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
             throw "Unauthorize";
+        }
+        const token = authHeader.replace("Bearer ", "");
         const verifiedUser = (0, jsonwebtoken_1.verify)(token, process.env.JWT_KEY);
         req.user = verifiedUser;
         next();
     }
     catch (error) {
         console.log(error);
-        res.status(400).send(error);
+        res.status(400).send({ message: "Unauthorize" });
     }
 });
 exports.verifyToken = verifyToken;
 const checkAdmin = (req, res, next) => {
     var _a;
-    if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role) == "Admin") {
+    if (((_a = req.user) === null || _a === void 0 ? void 0 : _a.role.toLowerCase()) == "admin") {
         next();
     }
     else {
-        res.status(400).send("unathorized user");
+        res.status(403).send({ message: "Forbidden: unauthorized user" });
     }
 };
 exports.checkAdmin = checkAdmin;
-

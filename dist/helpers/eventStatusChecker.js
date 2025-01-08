@@ -20,7 +20,7 @@ function updateEventStatus() {
             const currentDate = new Date();
             yield prisma_1.default.event.updateMany({
                 where: {
-                    date: { lt: currentDate },
+                    dateTime: { lt: currentDate },
                     isActive: true,
                 },
                 data: {

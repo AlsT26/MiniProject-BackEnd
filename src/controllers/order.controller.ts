@@ -1,7 +1,7 @@
 import { addMinutes } from "date-fns";
 import { PrismaClient } from "../../prisma/generated/client";
 import { Request, Response } from "express";
-const midtransClient = require("midtrans-client");
+// const midtransClient = require("midtrans-client");
 
 const prisma = new PrismaClient();
 

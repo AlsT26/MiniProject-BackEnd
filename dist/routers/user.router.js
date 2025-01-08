@@ -4,7 +4,6 @@ exports.UserRouter = void 0;
 const express_1 = require("express");
 const user_controller_1 = require("../controllers/user.controller");
 const verify_1 = require("../middlewares/verify");
-// import { uploader } from "../services/uploader";
 class UserRouter {
     constructor() {
         this.userController = new user_controller_1.UserController();

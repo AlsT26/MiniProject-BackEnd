@@ -20,6 +20,7 @@ class UserController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 console.log(req.user);
+                console.log(req.user);
                 const { search, page = 1 } = req.query;
                 const { user } = req.body;
                 console.log("user", user);

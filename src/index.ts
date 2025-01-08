@@ -3,7 +3,6 @@ import cors from "cors";
 import { UserRouter } from "./routers/user.router";
 import { AuthRouter } from "./routers/auth.router";
 import { PromotorRouter } from "./routers/promotor.router";
-import cookieParser from "cookie-parser";
 import path from "path";
 import { EventRouter } from "./routers/event.router";
 import { OrderRouter } from "./routers/order.router";

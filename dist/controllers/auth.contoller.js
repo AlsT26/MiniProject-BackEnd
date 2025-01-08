@@ -87,7 +87,7 @@ class AuthController {
     loginUser(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                yield prisma_1.default.$transaction((prisma) => __awaiter(this, void 0, void 0, function* () {
+                yield prisma_1.default.$transaction(() => __awaiter(this, void 0, void 0, function* () {
                     const { data, password } = req.body;
                     const user = yield (0, user_service_1.findUser)(data, data);
                     if (!user)
@@ -102,15 +102,9 @@ class AuthController {
                     const token = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_KEY, { expiresIn: "1d" });
                     res
                         .status(200)
-                        .cookie("token", token, {
-                        httpOnly: false,
-                        maxAge: 24 * 3600 * 1000,
-                        path: "/",
-                        secure: process.env.NODE_ENV === "production",
-                        sameSite: "strict",
-                    })
                         .send({
                         message: "Login Sucessfully ✅",
+                        token,
                         user,
                         token,
                     });
@@ -170,20 +164,20 @@ class AuthController {
             try {
                 yield prisma_1.default.$transaction((prisma) => __awaiter(this, void 0, void 0, function* () {
                     const { data, password } = req.body;
-                    const promotor = yield (0, promotor_service_1.findPromotor)(data, data);
-                    if (!promotor)
+                    const user = yield (0, promotor_service_1.findPromotor)(data, data);
+                    if (!user)
                         throw { message: "Account not found !" };
-                    if (!promotor.isVerify)
+                    if (!user.isVerify)
                         throw { message: "Account not Verified !" };
-                    const isValidPass = yield (0, bcrypt_1.compare)(password, promotor.password);
+                    const isValidPass = yield (0, bcrypt_1.compare)(password, user.password);
                     if (!isValidPass) {
                         throw { message: "Incorrect Password !" };
                     }
-                    const payload = { id: promotor.id, role: "Promotor" };
+                    const payload = { id: user.id, role: "Promotor" };
                     const token = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_KEY, { expiresIn: "1d" });
                     res.status(200).send({
                         message: "Login Sucessfully ✅",
-                        promotor,
+                        user,
                         token,
                     });
                 }));

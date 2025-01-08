@@ -96,7 +96,7 @@ export class AuthController {
         const payload = { id: user.id ,role:"User"};
         const token = sign(payload, process.env.JWT_KEY!, { expiresIn: "1d" });
 console.log(process.env.JWT_KEY);
-
+console.log("aowkaowkaowk");
         res
           .status(200)
           .send({

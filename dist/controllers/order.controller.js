@@ -129,6 +129,20 @@ class OrderController {
                             select: {
                                 ticketId: true,
                                 qty: true,
+                                ticket: {
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        event: {
+                                            select: {
+                                                id: true,
+                                                title: true,
+                                                dateTime: true,
+                                                location: true,
+                                            },
+                                        },
+                                    },
+                                },
                             },
                         },
                     },
@@ -136,14 +150,130 @@ class OrderController {
                 if (userOrders.length === 0) {
                     return res.status(404).send({ message: `This user with id ${userId} haven't made any orders` });
                 }
+                // Transform the response to include relevant event details
+                const transformedOrders = userOrders.map((order) => ({
+                    id: order.id,
+                    total_price: order.total_price,
+                    final_price: order.final_price,
+                    status: order.status,
+                    createdAt: order.createdAt,
+                    tickets: order.details.map((detail) => ({
+                        ticketId: detail.ticketId,
+                        qty: detail.qty,
+                        ticketTitle: detail.ticket.title,
+                        event: detail.ticket.event,
+                    })),
+                }));
                 res.status(200).send({
                     message: "User orders fetched successfully",
-                    orders: userOrders,
+                    orders: transformedOrders,
                 });
             }
             catch (error) {
                 console.error("Error fetching user orders:", error);
                 res.status(500).send({ message: "Order: Server Error", error });
+            }
+        });
+    }
+    getUserOrdersByStatus(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                const status = req.query.status;
+                if (!userId) {
+                    return res.status(401).send({ message: "Unauthorized User" });
+                }
+                const validStatuses = Object.values(client_1.OrderStatus);
+                const statusFilter = validStatuses.includes(status) ? status : undefined;
+                const userOrders = yield prisma.order.findMany({
+                    where: Object.assign({ userId }, (statusFilter && { status: statusFilter })),
+                    select: {
+                        id: true,
+                        total_price: true,
+                        final_price: true,
+                        status: true,
+                        createdAt: true,
+                        details: {
+                            select: {
+                                ticketId: true,
+                                qty: true,
+                                ticket: {
+                                    select: {
+                                        id: true,
+                                        title: true,
+                                        event: {
+                                            select: {
+                                                id: true,
+                                                title: true,
+                                                dateTime: true,
+                                                location: true,
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+                if (userOrders.length === 0) {
+                    return res.status(404).send({ message: `No orders found with status ${status || "All"}` });
+                }
+                const transformedOrders = userOrders.map((order) => ({
+                    id: order.id,
+                    total_price: order.total_price,
+                    final_price: order.final_price,
+                    status: order.status,
+                    createdAt: order.createdAt,
+                    tickets: order.details.map((detail) => ({
+                        ticketId: detail.ticketId,
+                        qty: detail.qty,
+                        event: detail.ticket.event,
+                        title: detail.ticket.title,
+                    })),
+                }));
+                res.status(200).send({
+                    message: "User orders fetched successfully",
+                    orders: transformedOrders,
+                });
+            }
+            catch (error) {
+                console.error("Error fetching user orders by status:", error);
+                res.status(500).send({ message: "Order: Server Error", error });
+            }
+        });
+    }
+    getOrderById(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a;
+            try {
+                const { id } = req.params;
+                const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a.id;
+                if (!userId) {
+                    return res.status(401).send({ message: "Unauthorized User" });
+                }
+                const order = yield prisma.order.findUnique({
+                    where: { id: +id },
+                    include: {
+                        details: {
+                            include: {
+                                ticket: {
+                                    include: {
+                                        event: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                });
+                if (!order || order.userId !== userId) {
+                    return res.status(404).send({ message: "Order not found or unauthorized access." });
+                }
+                res.status(200).send({ message: "Order fetched successfully", order });
+            }
+            catch (error) {
+                console.error("Error fetching order details:", error);
+                res.status(500).send({ message: "Server error", error });
             }
         });
     }

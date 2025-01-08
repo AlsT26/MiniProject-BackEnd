@@ -13,6 +13,8 @@ class OrderRouter {
     initializeRoutes() {
         this.router.get("/user-order", verify_1.verifyToken, this.orderController.getUserOrder);
         this.router.post("/make-order", verify_1.verifyToken, this.orderController.createOrder);
+        this.router.get("/user-orders-by-status", verify_1.verifyToken, this.orderController.getUserOrdersByStatus.bind(this.orderController));
+        this.router.get("/order/:id", verify_1.verifyToken, this.orderController.getOrderById.bind(this.orderController));
     }
     getRouter() {
         return this.router;

@@ -15,6 +15,34 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventController = void 0;
 const prisma_1 = __importDefault(require("../prisma"));
 class EventController {
+    ShowEvents(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { search, page = 1, limit = 20, promotorId } = req.query;
+                const filter = {};
+                if (promotorId) {
+                    filter.promotorId = Number(promotorId); // Assuming `promotorId` is the correct field in your database
+                }
+                if (search) {
+                    filter.OR = [{ title: { contains: search, mode: "insensitive" } }];
+                }
+                const countEvents = yield prisma_1.default.event.aggregate({ _count: { _all: true } });
+                const total_page = Math.ceil(countEvents._count._all / +limit);
+                const events = yield prisma_1.default.event.findMany({
+                    include: { promotor: true },
+                    where: filter,
+                    orderBy: { id: "asc" },
+                    take: +limit,
+                    skip: +limit * (+page - 1),
+                });
+                res.status(200).send({ countEvents, total_page, page, events });
+            }
+            catch (error) {
+                console.log(error);
+                res.status(404).send({ message: error });
+            }
+        });
+    }
     getEvents(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -69,8 +97,7 @@ class EventController {
                         location: true,
                         venue: true,
                         thumbnail: true,
-                        date: true,
-                        time: true,
+                        dateTime: true,
                         tickets: {
                             select: {
                                 id: true,
@@ -78,6 +105,7 @@ class EventController {
                                 desc: true,
                                 available: true,
                                 totalSeats: true,
+                                price: true,
                             },
                         },
                         promotor: {
@@ -93,6 +121,19 @@ class EventController {
             catch (error) {
                 console.log(error);
                 res.status(404).send({ message: error });
+            }
+        });
+    }
+    EditEvent(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = req.params;
+                yield prisma_1.default.event.update({ data: req.body, where: { id: +id } });
+                res.status(200).send("success");
+            }
+            catch (error) {
+                console.log(error);
+                res.status(400).send({ error });
             }
         });
     }

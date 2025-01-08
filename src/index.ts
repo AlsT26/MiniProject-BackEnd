@@ -3,7 +3,6 @@ import cors from "cors";
 import { UserRouter } from "./routers/user.router";
 import { AuthRouter } from "./routers/auth.router";
 import { PromotorRouter } from "./routers/promotor.router";
-import cookieParser from "cookie-parser";
 import path from "path";
 import { EventRouter } from "./routers/event.router";
 import { OrderRouter } from "./routers/order.router";
@@ -18,9 +17,8 @@ app.use(
     credentials: true,
   })
 );
-export const upload = multer({ storage: multer.memoryStorage() });
-app.use(cookieParser());
-app.get("/api", (req: Request, res: Response) => {
+app.get("/", (req: Request, res: Response) => {
+
   res.status(200).send("welcome to api");
 });
 const userRouter = new UserRouter();

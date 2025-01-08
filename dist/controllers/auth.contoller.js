@@ -98,19 +98,21 @@ class AuthController {
                     if (!isValidPass) {
                         throw { message: "Incorrect Password !" };
                     }
-                    const payload = { id: user.id };
+                    const payload = { id: user.id, role: "User" };
                     const token = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_KEY, { expiresIn: "1d" });
                     res
                         .status(200)
                         .cookie("token", token, {
-                        httpOnly: true,
+                        httpOnly: false,
                         maxAge: 24 * 3600 * 1000,
                         path: "/",
                         secure: process.env.NODE_ENV === "production",
+                        sameSite: "strict",
                     })
                         .send({
                         message: "Login Sucessfully ✅",
                         user,
+                        token,
                     });
                 }));
             }
@@ -177,19 +179,12 @@ class AuthController {
                     if (!isValidPass) {
                         throw { message: "Incorrect Password !" };
                     }
-                    const payload = { id: promotor.id, role: "promotor" };
+                    const payload = { id: promotor.id, role: "Promotor" };
                     const token = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_KEY, { expiresIn: "1d" });
-                    res
-                        .status(200)
-                        .cookie("token", token, {
-                        httpOnly: true,
-                        maxAge: 24 * 3600 * 1000,
-                        path: "/",
-                        secure: process.env.NODE_ENV === "production",
-                    })
-                        .send({
+                    res.status(200).send({
                         message: "Login Sucessfully ✅",
                         promotor,
+                        token,
                     });
                 }));
             }
